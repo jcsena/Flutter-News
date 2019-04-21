@@ -21,6 +21,7 @@ class Repository {
   Future<ItemModel> fetchItem(int id) async {
     ItemModel item;
     try {
+      print('fetch $id');
       item = await sources[1].fetchItem(id);
       caches[0].addItem(item);
       return item;

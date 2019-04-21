@@ -1,17 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/item_model.dart';
-import '../blocs/stories_provider.dart';
 import './loading_container.dart';
 
 class NewsListTile extends StatelessWidget {
   final int itemId;
+  final bloc;
 
-  NewsListTile({this.itemId});
+  NewsListTile({this.itemId, this.bloc});
 
   @override
   Widget build(BuildContext context) {
-    final bloc = StoriesProvider.of(context);
     return StreamBuilder(
       stream: bloc.items,
       builder: (context,
@@ -31,21 +30,24 @@ class NewsListTile extends StatelessWidget {
                   if (!itemSnapShot.hasData) {
                     return LoadingContainer();
                   }
-                  return buildTile(itemSnapShot.data);
+                  return buildTile(context: context, item: itemSnapShot.data);
                 },
               );
             }
-            return buildTile(itemSnapShot.data);
+            return buildTile(context: context, item: itemSnapShot.data);
           },
         );
       },
     );
   }
 
-  Widget buildTile(ItemModel item) {
+  Widget buildTile({BuildContext context, ItemModel item}) {
     return Column(
       children: <Widget>[
         ListTile(
+          onTap: () {
+            Navigator.pushNamed(context, '/${item.id}');
+          },
           title: Text(item.title),
           subtitle: Text('${item.score} points'),
           trailing: Column(

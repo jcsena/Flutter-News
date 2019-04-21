@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 import '../blocs/stories_provider.dart';
+import '../blocs/stories_bloc.dart';
 import '../widgets/news_list_tile.dart';
+import '../widgets/refresh.dart';
 
-class NewsList extends StatelessWidget {
+class NewsList extends StatefulWidget {
+  @override
+  _NewsListState createState() => _NewsListState();
+}
+
+class _NewsListState extends State<NewsList> {
+  @override
+  void initState() {
+    super.initState();
+    bloc.fetchTopIds();
+  }
+
+  @override
+  void dispose() {
+    bloc.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bloc = StoriesProvider.of(context);
-
-    bloc.fetchTopIds();
     return Scaffold(
         appBar: AppBar(
           title: Text('Top News'),
@@ -24,13 +40,19 @@ class NewsList extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }
-        return ListView.builder(
-          itemCount: snapshot.data.length,
-          itemBuilder: (context, int index) {
-            final int itemId = snapshot.data[index];
-            bloc.fetchItem(itemId);
-            return  NewsListTile(itemId: itemId,);
-          },
+        return Refresh(
+          bloc: bloc,
+          child: ListView.builder(
+            itemCount: snapshot.data.length,
+            itemBuilder: (context, int index) {
+              final int itemId = snapshot.data[index];
+              bloc.fetchItem(itemId);
+              return NewsListTile(
+                itemId: itemId,
+                bloc: bloc,
+              );
+            },
+          ),
         );
       },
     );
